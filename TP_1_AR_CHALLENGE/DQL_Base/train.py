@@ -4,28 +4,12 @@ import torch.optim as optim
 import gymnasium as gym
 import random
 import numpy as np
-import collections # Para el Replay Buffer (deque)
-import matplotlib.pyplot as plt # Para graficar
+import collections 
+import matplotlib.pyplot as plt 
 
 import os
-import optuna
 
 # --- Hiperparámetros ---
-'''
-max_episodes = 3000
-max_steps_per_episode = 2000
-learning_rate = 0.01
-gamma = 0.99
-epsilon_start = 1.0
-epsilon_end = 0.01
-epsilon_decay_episodes = 1000
-buffer_size = 50_000
-batch_size = 128
-target_update_freq = 500
-print_every = 50
-smoothing_window = 100
-'''
-
 max_episodes = 2000
 max_steps_per_episode = 1000
 learning_rate = 0.0005
@@ -166,14 +150,17 @@ for episode in range(max_episodes):
         avg_reward = np.mean(episode_rewards_history[-print_every:])
         print(f'Episodio: {episode + 1}/{max_episodes}, Pasos: {episode_steps}, Recompensa Promedio ({print_every} ep): {avg_reward:.2f}, Epsilon: {epsilon:.3f}')
 
+
 print("--- Entrenamiento Finalizado ---")
 
 base_path = os.path.dirname(os.path.abspath(__file__))
+result_path = os.path.join(base_path, "result")
+
 print(f"Directorio base: {base_path}")
 
 
 # Guardar la Q-Network entrenada
-model_path = os.path.join(base_path,"steps","DQLBase","q_network_mountaincar.pth")
+model_path = os.path.join(result_path,"q_network_mountaincar.pth")
 
 # Guardar el modelo completo (estructura + pesos)
 torch.save(q_network, model_path)
@@ -189,8 +176,8 @@ if len(episode_rewards_history) >= smoothing_window:
     plt.plot(range(smoothing_window, max_episodes + 1), rewards_smoothed, label=f'Media Móvil ({smoothing_window} episodios)', color='red', linewidth=2)
 plt.xlabel("Episodio")
 plt.ylabel("Recompensa Total")
-plt.title("Convergencia de Recompensa Double DQN en MountainCar-V0") # <-- Título actualizado
+plt.title("Convergencia de Recompensa Double DQN en MountainCar-V0 Base") # <-- Título actualizado
 plt.legend()
 plt.grid(True)
-plt.savefig(os.path.join(base_path, "convergencia_double_dqn.png"))
+plt.savefig(os.path.join(result_path, "convergencia_double_dqn.png"))
 plt.show()

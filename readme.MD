@@ -19,6 +19,6 @@ Este repositorio contiene los trabajos prácticos de la materia **Aprendizaje po
 Explorar, implementar y entrenar agentes que interactúan con entornos complejos utilizando técnicas clásicas de Aprendizaje por Refuerzo (Reinforcement Learning).
 
 ## Trabajo Práctico N° 1
-Implementar un el algoritmo Double Q-Learning, de AR para resolver el problema de Mountain Car, utilizando el enviroment de [Gymnasium](https://gymnasium.farama.org/environments/classic_control/mountain_car/).
+Implementar una competencia de algoritmos de AR para resolver el problema de Mountain Car, utilizando el enviroment de [Gymnasium](https://gymnasium.farama.org/environments/classic_control/mountain_car/).
 
-Para ver la resolución, hacer click [aquí](TP_1_DOUBLE_DQN/readme.MD)
+Para ver la resolución, hacer click [aquí](TP_1_AR_CHALLENGE/readme.MD).

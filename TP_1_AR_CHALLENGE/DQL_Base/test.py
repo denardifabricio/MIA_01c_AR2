@@ -21,16 +21,15 @@ def generar_video(im_folder, output_path, fps=1):
 
 
 base_path = os.path.dirname(os.path.abspath(__file__))
-base_path = os.path.join(base_path, "steps", "DQLBase s")
-save_step_dirpath = base_path
+result_path = os.path.join(base_path, "result")
+save_step_dirpath = os.path.join(result_path, "steps")
 
 print(f"Directorio base: {base_path}")
 
-model_path = os.path.join(base_path,"q_network_mountaincar.pth")
+model_path = os.path.join(result_path,"q_network_mountaincar.pth")
 q_network = torch.load(model_path)
 
 
-save_step_dirpath = os.path.join(base_path, "steps", "DQL")
 q_network.eval()
 
 print("\n--- prueba con la política aprendida (Evaluación) ---")
@@ -72,7 +71,7 @@ for i in range(num_eval_episodes):
         step_number += 1
 
         video_path = os.path.join(
-            save_step_dirpath, "simulacion.gif"
+            result_path, "simulacion.gif"
         )
         generar_video(save_step_dirpath, video_path, fps=5)
 

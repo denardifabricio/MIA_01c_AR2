@@ -5,22 +5,13 @@ import imageio
 import matplotlib.pyplot as plt
 
 
-env = gym.make("MountainCar-v0")
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 print(f"Directorio base: {base_path}")
+result_dirpath = os.path.join(base_path, "result")
 
 
-save_step_dirpath = os.path.join(base_path, "steps", "qlearning")
-
-
-def generar_video(im_folder, output_path, fps=1):
-    images = []
-    filenames = sorted([f for f in os.listdir(im_folder) if f.endswith(".png")])
-    for filename in filenames:
-        img_path = os.path.join(im_folder, filename)
-        images.append(imageio.imread(img_path))
-    imageio.mimsave(output_path, images, fps=fps)
+env = gym.make("MountainCar-v0")
 
 
 
@@ -45,11 +36,15 @@ max_steps = 200
 # Inicializar Q-table
 q_table = np.zeros(n_bins + (env.action_space.n,))
 
+# Lista para almacenar las recompensas totales por episodio
+episode_rewards_history = []
+
 # Entrenamiento
 for episode in range(n_episodes):
     obs, _ = env.reset()
     state = discretize(obs)
     done = False
+    total_reward = 0  # Inicializar recompensa total para el episodio
     for step in range(max_steps):
         if np.random.rand() < epsilon:
             action = env.action_space.sample()
@@ -65,48 +60,34 @@ for episode in range(n_episodes):
         q_table[state][action] += alpha * (td_target - q_table[state][action])
 
         state = next_state
+        total_reward += reward  # Acumular recompensa
         if done:
             break
+    episode_rewards_history.append(total_reward)  # Guardar recompensa total del episodio
     if epsilon > epsilon_min:
         epsilon *= epsilon_decay
 
     if (episode+1) % 1000 == 0:
         print(f"Episode {episode+1}/{n_episodes}")
 
-# Testeo
-env = gym.make("MountainCar-v0", render_mode="rgb_array")
-n_test_episodes = 1
+# Guardar la Q-table
+np.save(os.path.join(base_path, "q_table.npy"), q_table)
 
-episode_steps=0
-step_number = 0
+# --- Graficar Curva de Convergencia ---
+print("\n--- Generando Gráfico de Convergencia ---")
+plt.figure(figsize=(12, 6))
+plt.plot(range(1, n_episodes + 1), episode_rewards_history, label='Recompensa por Episodio', alpha=0.4)
 
-for episode in range(n_test_episodes):
-    obs, _ = env.reset()
-    state = discretize(obs)
-    done = False
-    total_reward = 0
-    for step in range(max_steps):
-        action = np.argmax(q_table[state])
-        obs, reward, terminated, truncated, _ = env.step(action)
-        state = discretize(obs)
-        total_reward += reward
-        done = terminated or truncated
-        if done:
-            break
+# Suavizar la curva con una media móvil
+smoothing_window = 100
+if len(episode_rewards_history) >= smoothing_window:
+    rewards_smoothed = np.convolve(episode_rewards_history, np.ones(smoothing_window)/smoothing_window, mode='valid')
+    plt.plot(range(smoothing_window, n_episodes + 1), rewards_smoothed, label=f'Media Móvil ({smoothing_window} episodios)', color='red', linewidth=2)
 
-        episode_steps += 1
-        img = env.render()
-        plt.imsave(os.path.join(save_step_dirpath, f"step_{step_number:04d}.png"), img)
-
-        step_number += 1
-
-    print(f"Test Episode {episode+1}: Total Reward = {total_reward}")
-
-    video_path = os.path.join(
-            save_step_dirpath, "simulacion_qlearning.gif"
-        )
-    
-    
-    generar_video(save_step_dirpath, video_path, fps=5)
-
-env.close()
+plt.xlabel("Episodio")
+plt.ylabel("Recompensa Total")
+plt.title("Convergencia de Recompensa Q-Learning en MountainCar-V0")
+plt.legend()
+plt.grid(True)
+plt.savefig(os.path.join(result_dirpath, "convergencia_qlearning.png"))
+plt.show()

@@ -11,36 +11,19 @@ print("Stable Baselines3 importado correctamente.")
 base_path = os.path.dirname(os.path.abspath(__file__))
 print(f"Directorio base: {base_path}")
 
+result_path = os.path.join(base_path, "result")
 
-save_step_dirpath = os.path.join(base_path, "steps", "PPO")
+save_step_dirpath = os.path.join(result_path, "steps")
 
 
 env_id =  'MountainCar-v0'
-video_folder = os.path.join(base_path,"step","PPO",'logs/videos/')
+video_folder = os.path.join(result_path)
 video_length = 1000
-log_dir = os.path.join(base_path, "/tmp/gym/")
+log_dir = os.path.join(result_path, "log")
 os.makedirs(log_dir, exist_ok=True)
 os.makedirs(video_folder, exist_ok=True)
 
-train_env = make_vec_env(env_id, n_envs=4)
-record_env_raw = gymnasium.make(env_id, render_mode='rgb_array')
 
-model = PPO(
-    policy='MlpPolicy',
-    env=train_env,
-    learning_rate=0.0005,         # Lower learning rate for more stable updates
-    n_steps=6000,               # Default value, smaller batch for more frequent updates
-    batch_size=128,              # Smaller batch size for more frequent updates
-    n_epochs=100,                # Default value, less overfitting per update
-    gamma=0.99,
-    gae_lambda=0.95,            # Default value, more bias but less variance
-    clip_range=0.2,             # Default value, more conservative updates
-    ent_coef=0.0,               # No entropy bonus, as exploration is less useful in sparse-reward
-    vf_coef=0.5,                # Default value
-    max_grad_norm=0.5,          # Default value
-    verbose=1,
-    seed=42,
-)
 
 def generar_video(im_folder, output_path, fps=1):
     images = []
@@ -52,14 +35,41 @@ def generar_video(im_folder, output_path, fps=1):
 
 
 
-print(f"Iniciando entrenamiento con PPO en {env_id}...")
-model.learn(total_timesteps=500_000)
-print("Entrenamiento completado.")
+train_env = make_vec_env(env_id, n_envs=4)
+
+model = PPO(
+    policy='MlpPolicy',
+    env=train_env,
+    learning_rate=0.0005,
+    n_steps=6000,
+    batch_size=128,
+    n_epochs=100,
+    gamma=0.99,
+    gae_lambda=0.95,
+    clip_range=0.2,
+    ent_coef=0.0,
+    vf_coef=0.5,
+    max_grad_norm=0.5,
+    verbose=1,
+    seed=42,
+)
+
+load_path = os.path.join(base_path, "result.zip")
+
+model.load(load_path)
+
+
+
+record_env_raw = gymnasium.make(env_id, render_mode='rgb_array')
+
 
 print(f"Grabando video de {env_id}...")
 record_env = VecVideoRecorder(make_vec_env(lambda: record_env_raw, n_envs=1), video_folder,
                            record_video_trigger=lambda x: x == 0, video_length=video_length,
                          name_prefix=f"ppo-{env_id}")
+
+
+
 
 step_number = 0
 obs = record_env.reset()
@@ -74,7 +84,7 @@ for _ in range(video_length + 1):
     step_number += 1
 
 video_path = os.path.join(
-    save_step_dirpath, "simulacion.gif"
+    result_path, "simulacion.gif"
 )
 generar_video(save_step_dirpath, video_path, fps=5)
 
