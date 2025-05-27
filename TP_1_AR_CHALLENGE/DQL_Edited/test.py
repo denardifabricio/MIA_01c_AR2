@@ -73,7 +73,7 @@ for i in range(num_eval_episodes):
         video_path = os.path.join(
             result_path, "simulacion.gif"
         )
-        generar_video(save_step_dirpath, video_path, fps=5)
+        generar_video(save_step_dirpath, video_path, fps=10)
 
     print(f'Evaluación {i+1}, Recompensa: {episode_eval_reward}, Pasos: {episode_steps}')
     total_eval_reward += episode_eval_reward

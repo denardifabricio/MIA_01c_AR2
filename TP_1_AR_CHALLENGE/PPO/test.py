@@ -69,7 +69,7 @@ for _ in range(video_length + 1):
 video_path = os.path.join(
     result_path, "simulacion.gif"
 )
-generar_video(save_step_dirpath, video_path, fps=5)
+generar_video(save_step_dirpath, video_path, fps=15)
 
 record_env.close()
 print(f"Video guardado en la carpeta: {video_folder}")

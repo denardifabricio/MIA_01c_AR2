@@ -71,6 +71,6 @@ for episode in range(n_test_episodes):
         )
     
     
-    generar_video(save_step_dirpath, video_path, fps=5)
+    generar_video(save_step_dirpath, video_path, fps=10)
 
 env.close()

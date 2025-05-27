@@ -1,10 +1,7 @@
-
 import os
-import gymnasium
+import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.vec_env import VecVideoRecorder
-import imageio
 import matplotlib.pyplot as plt
 print("Stable Baselines3 importado correctamente.")
 
@@ -15,8 +12,7 @@ result_path = os.path.join(base_path, "result")
 
 save_step_dirpath = os.path.join(result_path, "steps")
 
-
-env_id =  'MountainCar-v0'
+env_id = 'MountainCar-v0'
 video_folder = os.path.join(result_path)
 video_length = 1000
 log_dir = os.path.join(result_path, "log")
@@ -42,14 +38,33 @@ model = PPO(
     seed=42,
 )
 
+# --- Recolección de recompensas por episodio ---
+episode_rewards_history = []
+callback_rewards = []
 
-
+def reward_callback(locals_, globals_):
+    global callback_rewards
+    callback_rewards.append(locals_['infos'][0]['episode']['r']) if 'episode' in locals_['infos'][0] else None
+    return True
 
 print(f"Iniciando entrenamiento con PPO en {env_id}...")
-model.learn(total_timesteps=500_000, progress_bar=True)
+model.learn(total_timesteps=500_000, progress_bar=True, callback=reward_callback)
 print("Entrenamiento completado.")
-
 
 model.save(result_path)
 
-
+# --- Graficar Curva de Convergencia ---
+print("\n--- Generando Gráfico de Convergencia ---")
+plt.figure(figsize=(12, 6))
+plt.plot(range(1, len(callback_rewards) + 1), callback_rewards, label='Recompensa por episodio', alpha=0.4)
+smoothing_window = 50
+if len(callback_rewards) >= smoothing_window:
+    rewards_smoothed = np.convolve(callback_rewards, np.ones(smoothing_window)/smoothing_window, mode='valid')
+    plt.plot(range(smoothing_window, len(callback_rewards) + 1), rewards_smoothed, label=f'Media Móvil ({smoothing_window} episodios)', color='red', linewidth=2)
+plt.xlabel("Episodio")
+plt.ylabel("Recompensa Total")
+plt.title("Convergencia de Recompensa PPO en MountainCar-V0") 
+plt.legend()
+plt.grid(True)
+plt.savefig(os.path.join(result_path, "convergencia.png"))
+plt.show()
