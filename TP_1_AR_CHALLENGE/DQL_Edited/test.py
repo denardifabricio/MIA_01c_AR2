@@ -29,8 +29,20 @@ model_path = os.path.join(result_path,"q_network_mountaincar.pth")
 q_network = torch.load(model_path)
 
 
+
 save_step_dirpath = os.path.join(result_path, "steps")
 q_network.eval()
+
+
+
+# Borrar imágenes previas en la carpeta de pasos
+if os.path.exists(save_step_dirpath):
+    for filename in os.listdir(save_step_dirpath):
+        file_path = os.path.join(save_step_dirpath, filename)
+        if os.path.isfile(file_path) and filename.endswith(".png"):
+            os.remove(file_path)
+
+
 
 print("\n--- prueba con la política aprendida (Evaluación) ---")
 

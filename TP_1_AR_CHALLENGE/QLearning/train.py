@@ -27,11 +27,11 @@ def discretize(obs):
 # Hiperparámetros
 alpha = 0.1      # tasa de aprendizaje
 gamma = 0.99     # factor de descuento
-epsilon = 1.0    # exploración inicial
+epsilon = 0.2   # exploración inicial
 epsilon_min = 0.01
 epsilon_decay = 0.995
-n_episodes = 10000
-max_steps = 200
+n_episodes = 1250
+max_steps = 1000
 
 # Inicializar Q-table
 q_table = np.zeros(n_bins + (env.action_space.n,))
@@ -91,3 +91,6 @@ plt.legend()
 plt.grid(True)
 plt.savefig(os.path.join(result_dirpath, "convergencia_qlearning.png"))
 plt.show()
+
+# Guardar historial de recompensas para comparación futura
+np.save(os.path.join(result_dirpath, "episode_rewards_history.npy"), np.array(episode_rewards_history))

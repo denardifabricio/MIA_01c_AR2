@@ -26,7 +26,12 @@ q_table = np.load(os.path.join(result_dir, "q_table.npy"))
 save_step_dirpath = os.path.join(result_dir, "steps")
 
 
-
+# Borrar imágenes previas en la carpeta de pasos
+if os.path.exists(save_step_dirpath):
+    for filename in os.listdir(save_step_dirpath):
+        file_path = os.path.join(save_step_dirpath, filename)
+        if os.path.isfile(file_path) and filename.endswith(".png"):
+            os.remove(file_path)
 
 env = gym.make("MountainCar-v0", render_mode="rgb_array")
 n_test_episodes = 1

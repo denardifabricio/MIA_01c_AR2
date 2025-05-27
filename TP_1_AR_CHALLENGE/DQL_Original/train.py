@@ -4,33 +4,24 @@ import torch.optim as optim
 import gymnasium as gym
 import random
 import numpy as np
-import collections # Para el Replay Buffer (deque)
-import matplotlib.pyplot as plt # Para graficar
+import collections 
+import matplotlib.pyplot as plt 
 
 import os
 
 # --- Hiperparámetros ---
-max_episodes = 1250
-max_steps_per_episode = 1000
-learning_rate = 0.0005
+max_episodes = 5000
+max_steps_per_episode = 200
+learning_rate = 0.001
 gamma = 0.99
-epsilon_start = 0.2
-epsilon_end = 0.01
-epsilon_decay_episodes = 1000
-buffer_size = 50_000
-batch_size = 128
-target_update_freq = 500
-print_every = 50
+epsilon_start = 1.0
+epsilon_end = 0.05
+epsilon_decay_episodes = 3000
+buffer_size = 100_000
+batch_size = 64
+target_update_freq = 1000
+print_every = 100
 smoothing_window = 100
-
-
-# --- Datos básicos ---
-
-base_path = os.path.dirname(os.path.abspath(__file__))
-print(f"Directorio base: {base_path}")
-
-result_path = os.path.join(base_path, "result")  
-
 
 # --- Entorno ---
 env = gym.make('MountainCar-v0')
@@ -74,7 +65,6 @@ epsilon = epsilon_start
 episode_rewards_history = []
 
 
-
 optimizer = optim.Adam(q_network.parameters(), lr=learning_rate)
 print("--- Iniciando Entrenamiento (Double DQN) ---")
 for episode in range(max_episodes):
@@ -95,12 +85,6 @@ for episode in range(max_episodes):
                 action = q_values.max(1)[1].view(1, 1)
 
         next_obs, reward, terminated, truncated, info = env.step(action.item())
-
-        # --- ✨ REWARD SHAPING aquí ---
-        position = next_obs[0]
-        reward += (position + 0.5)
-        # ------------------------------
-
 
         done = terminated or truncated
         episode_reward += reward
@@ -166,9 +150,13 @@ for episode in range(max_episodes):
         avg_reward = np.mean(episode_rewards_history[-print_every:])
         print(f'Episodio: {episode + 1}/{max_episodes}, Pasos: {episode_steps}, Recompensa Promedio ({print_every} ep): {avg_reward:.2f}, Epsilon: {epsilon:.3f}')
 
+
 print("--- Entrenamiento Finalizado ---")
 
+base_path = os.path.dirname(os.path.abspath(__file__))
+result_path = os.path.join(base_path, "result")
 
+print(f"Directorio base: {base_path}")
 
 
 # Guardar la Q-Network entrenada
@@ -182,16 +170,16 @@ print(f"Q-Network guardada en: {model_path}")
 # --- Graficar Curva de Convergencia ---
 print("\n--- Generando Gráfico de Convergencia ---")
 plt.figure(figsize=(12, 6))
-plt.plot(range(1, max_episodes + 1), episode_rewards_history, label='Recompensa por episodio', alpha=0.4)
+plt.plot(range(1, max_episodes + 1), episode_rewards_history, label='Recompensa por Episodio', alpha=0.4)
 if len(episode_rewards_history) >= smoothing_window:
     rewards_smoothed = np.convolve(episode_rewards_history, np.ones(smoothing_window)/smoothing_window, mode='valid')
     plt.plot(range(smoothing_window, max_episodes + 1), rewards_smoothed, label=f'Media Móvil ({smoothing_window} episodios)', color='red', linewidth=2)
 plt.xlabel("Episodio")
 plt.ylabel("Recompensa Total")
-plt.title("Convergencia de Recompensa Double DQN en MountainCar-V0") 
+plt.title("Convergencia de Recompensa Double DQN en MountainCar-V0 Base") # <-- Título actualizado
 plt.legend()
 plt.grid(True)
-plt.savefig(os.path.join(result_path, "convergencia.png"))
+plt.savefig(os.path.join(result_path, "convergencia_double_dqn.png"))
 plt.show()
 
 

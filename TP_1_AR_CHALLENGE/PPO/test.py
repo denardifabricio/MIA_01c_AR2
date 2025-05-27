@@ -16,6 +16,13 @@ result_path = os.path.join(base_path, "result")
 save_step_dirpath = os.path.join(result_path, "steps")
 
 
+# Borrar imágenes previas en la carpeta de pasos
+if os.path.exists(save_step_dirpath):
+    for filename in os.listdir(save_step_dirpath):
+        file_path = os.path.join(save_step_dirpath, filename)
+        if os.path.isfile(file_path) and filename.endswith(".png"):
+            os.remove(file_path)
+
 env_id =  'MountainCar-v0'
 video_folder = os.path.join(result_path)
 video_length = 1000

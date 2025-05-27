@@ -25,9 +25,9 @@ model = PPO(
     policy='MlpPolicy',
     env=train_env,
     learning_rate=0.0005,
-    n_steps=6000,
+    n_steps=12000,
     batch_size=128,
-    n_epochs=100,
+    n_epochs=200,
     gamma=0.99,
     gae_lambda=0.95,
     clip_range=0.2,
@@ -48,7 +48,7 @@ def reward_callback(locals_, globals_):
     return True
 
 print(f"Iniciando entrenamiento con PPO en {env_id}...")
-model.learn(total_timesteps=500_000, progress_bar=True, callback=reward_callback)
+model.learn(total_timesteps=750_000, progress_bar=True, callback=reward_callback)
 print("Entrenamiento completado.")
 
 model.save(result_path)
@@ -68,3 +68,6 @@ plt.legend()
 plt.grid(True)
 plt.savefig(os.path.join(result_path, "convergencia.png"))
 plt.show()
+
+# Guardar historial de recompensas para comparación futura
+np.save(os.path.join(result_path, "episode_rewards_history.npy"), np.array(callback_rewards))

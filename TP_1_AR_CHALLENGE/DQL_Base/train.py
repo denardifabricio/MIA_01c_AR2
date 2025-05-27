@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import os
 
 # --- Hiperparámetros ---
-max_episodes = 2000
+max_episodes = 1250
 max_steps_per_episode = 1000
 learning_rate = 0.0005
 gamma = 0.99
@@ -181,3 +181,7 @@ plt.legend()
 plt.grid(True)
 plt.savefig(os.path.join(result_path, "convergencia_double_dqn.png"))
 plt.show()
+
+
+# Guardar historial de recompensas para comparación futura
+np.save(os.path.join(result_path, "episode_rewards_history.npy"), np.array(episode_rewards_history))
