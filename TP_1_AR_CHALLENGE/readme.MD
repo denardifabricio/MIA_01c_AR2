@@ -16,6 +16,6 @@ Implementar una competencia de algoritmos de AR para resolver el problema de Mou
 
 
 
-La competencia creada incluye varias versiones de DQL Learning, PPO (vistos en Aprendizaje por refuerzos II) y se sumó a esta, un algoritmo de Aprendizaje por refuerzos I, QLearning.
+La competencia creada incluye varias versiones de Double DQL Learning, PPO (vistos en Aprendizaje por refuerzos II) y se sumó a esta, un algoritmo de Aprendizaje por refuerzos I, QLearning.
 
 Para ver quién ganó y el detalle del trabajo, hacé click [aquí](reporte.pdf).
